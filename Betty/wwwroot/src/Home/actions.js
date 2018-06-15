@@ -1,0 +1,7 @@
+﻿export const CHECK_AUTH = 'CHECK_AUTH'
+export const LOGIN = 'LOGIN'
+export const LOGOUT = 'LOGOUT'
+export const CLEAR_LOCALSTORE = 'CLEAR_LOCALSTORE'
+export const RELOAD_TOKEN = 'RELOAD_TOKEN'
+export const CLEAR_VM = 'CLEAR_VM'
+export const INIT_LIVEFEED = 'INIT_LIVEFEED'
