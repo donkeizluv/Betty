@@ -70,7 +70,13 @@ export default {
             step: 0,
             gameList: [],
             dialog: false,
-            confirm: false
+            confirm: true
+        }
+    },
+    watch:{
+        livefeedError(value){
+            //If no livefeed then confirm needed
+            this.confirm = !value;
         }
     },
     computed: {
@@ -99,8 +105,10 @@ export default {
         },
         userBet(bet) {
             //Warn if making bet when livefeed is off
-            if(this.livefeedError)
+            if(!this.confirm){
                 this.dialog = true;
+            }
+                
         },
         emitError: function(mess){
             this.$emit("error", mess);
