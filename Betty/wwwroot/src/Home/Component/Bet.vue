@@ -74,9 +74,10 @@ export default {
         }
     },
     watch:{
-        livefeedError(value){
+        livefeedError(error){
             //If no livefeed then confirm needed
-            this.confirm = !value;
+            if(error)
+                this.confirm = false;
         }
     },
     computed: {

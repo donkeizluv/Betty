@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Betty.Options
 {
@@ -9,6 +10,7 @@ namespace Betty.Options
         public string Username { get; set; }
         public string Pwd { get; set; }
         public string Suffix { get; set; }
-        public string Receiver { get; set; }
+        public IEnumerable<string> Receivers { get; set; }
+        public string Ad { get; set; }
     }
 }

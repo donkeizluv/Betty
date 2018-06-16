@@ -50,7 +50,11 @@ namespace Betty.Jobs
                         var web = new HtmlWeb();
                         var doc = await web.LoadFromWebAsync(_options.ScrapeUrl);
                         var allTr = doc.DocumentNode.SelectNodes(TablePath);
-                        // var games = new List<GameOdds>(); //Test
+                        if(allTr == null)
+                        {
+                            _logger.LogDebug("Can not get table rows");
+                            continue;
+                        }
                         foreach (var game in context.GameOdds.Where(g=> g.Start > now).Select(g => g))
                         {
                             var foundRow = false;
@@ -75,13 +79,13 @@ namespace Betty.Jobs
                                         _logger.LogError($"Invalid handicap: '{handicapString}'");
                                         continue;
                                     }
-                                    if(!StringHelper.TryParseDivideOperator(splitHandicap.First().Trim(), out var handicap1))
+                                    if(!StringHelper.TryParseDivideOperator(splitHandicap.First(), out var handicap1))
                                     {
                                         error = true;
                                         _logger.LogError($"Cant parse handicap1: '{splitHandicap.First()}'");
                                         continue;
                                     }
-                                    if(!StringHelper.TryParseDivideOperator(splitHandicap.Last().Trim(), out var handicap2))
+                                    if(!StringHelper.TryParseDivideOperator(splitHandicap.Last(), out var handicap2))
                                     {
                                         error = true;
                                         _logger.LogError($"Cant parse handicap2: '{splitHandicap.Last()}'");

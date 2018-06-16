@@ -1,30 +1,32 @@
 ﻿<template>
-    <v-flex class="pa-2" d-flex lg6>
+    <v-flex class="pa-2" d-flex lg5>
         <v-card class="grey darken-2">
             <v-card-title class="pa-0">
-                <v-container>
-                    <v-layout justify-center align-center row wrap>
+               <v-container>
+                    <v-layout class="pb-3" d-flex justify-center align-center row>
                         <v-flex lg1>
                             <v-checkbox
+                                class="checkbox"
                                 v-model="player1"
                                 :disabled="reg || timerStop"
                                 color="red"
                                 value="red"
                                 hide-details></v-checkbox>
                         </v-flex>
-                        <v-flex lg3>
-                            <span style="min-width: 30px" class="headline flag-icon" :class="'flag-icon-' + game.CountryCode1"></span>
-                            <span class="headline country">{{game.Player1}}</span>
+                        <v-flex class="text-start" d-flex lg4>
+                            <span style="min-width: 25px" class="title flag-icon" :class="'flag-icon-' + game.CountryCode1"></span>
+                            <span class="title country">{{game.Player1}}</span>
                         </v-flex>
-                        <v-flex lg2>
+                        <v-flex d-flex lg1>
                             <img class="vs-size" src="/static/vs.png">
                         </v-flex>
-                        <v-flex lg3>
-                            <span class="headline country">{{game.Player2}}</span>
-                            <span style="min-width: 30px" class="headline flag-icon" :class="'flag-icon-' + game.CountryCode2"></span>
+                        <v-flex class="text-end" d-flex lg4>
+                            <span class="title country">{{game.Player2}}</span>
+                            <span style="min-width: 25px" class="title flag-icon" :class="'flag-icon-' + game.CountryCode2"></span>
                         </v-flex>
                         <v-flex lg1>
                             <v-checkbox
+                                class="checkbox"
                                 v-model="player2"
                                 :disabled="reg || timerStop"
                                 color="red"
@@ -35,51 +37,54 @@
                     <v-divider></v-divider>
                 </v-container>
             </v-card-title>
-            <v-card-text>
+            <v-card-text class="pt-0">
                 <v-layout justify-center row>
-                    <v-flex lg10>
+                    <v-flex d-flex lg10>
                         <counter :date="game.Start"
                             prefix="Còn lại:"
                             @timedout="timedOutTimer"/>
                     </v-flex>
                 </v-layout>
-                <v-layout justify-center align-center row mt-4>
-                   <v-flex lg1>
+                <v-layout justify-center align-center row wrap pt-3>
+                   <v-flex d-inline-flex lg1 md4 xs4>
                        <span class="body-2 prefix">Chấp:</span>
                    </v-flex>
-                   <v-flex lg4>
+                   <v-flex d-inline-flex lg5 md7 xs8>
                        <up-down class="title" :status="odds1Trend" :value="game.Odds1"/>
                        <span class="title grey--text text--lighten-2 ml-1 mr-1">|</span>
                        <up-down class="title" :status="odds2Trend" :value="game.Odds2" :show-before="false"/>
                    </v-flex>
-                   <v-flex lg1>
-                       <span class="body-2 prefix">Ăn thua:</span>
+                   <v-flex d-inline-flex lg1 md4 xs4>
+                       <span class="body-2 prefix">O/U</span>
                    </v-flex>
-                   <v-flex lg4>
+                   <v-flex d-inline-flex lg5 md7 xs8>
                        <up-down class="title" :status="win1Trend" :value="game.Win1"/>
                        <span class="title grey--text text--lighten-2 ml-1 mr-1">|</span>
                        <up-down class="title" :status="win2Trend" :value="game.Win2" :show-before="false"/>
                    </v-flex>
                 </v-layout>
             </v-card-text>
-            <v-card-actions class="pt-0">
+            <v-card-actions class="pt-0 pb-3">
                 <v-layout justify-center align-center row wrap>
                     <v-flex lg7 md8 xs10>
-                        <v-slider v-model="amt"
+                        <v-slider 
+                            v-model="amt"
                             :disabled="reg || timerStop"
                             thumb-color="orange darken-3"
                             track-color="orange darken-3"
-                            label="Cược"
+                            label="$"
                             thumb-label
                             :min="minBet"
                             :max="maxBet"
-                            :step="step"></v-slider>
+                            :step="step"/>
                     </v-flex>
-                    <v-flex lg3 md4 xs5>
+                    <v-flex lg4 md4 xs5 class="pt-0">
                         <span class="title cash">{{formatAmt}} VND</span>
                     </v-flex>
-                    <v-flex lg4 offset-lg2 xs2>
-                        <v-btn @click="bet" :disabled="!canSubmit" color="success">{{buttonText}}</v-btn>
+                    <v-flex lg4 offset-lg2 xs4>
+                        <v-btn @click="bet" :disabled="!canSubmit" :loading="betting" color="success">
+                            {{buttonText}}
+                        </v-btn>
                     </v-flex>
                 </v-layout>
             </v-card-actions>
@@ -136,6 +141,7 @@ export default {
         },
         canSubmit: function(){
             //Not reged || timed out & must select player
+            if(this.betting) return false;
             if(this.reg || this.timerStop) return false;
             return this.player1 || this.player2;
         },
@@ -155,18 +161,11 @@ export default {
             win1Trend: null,
             win2Trend: null,
             upColor: 'lime lighten-2',
-            downColor: 'purple lighten-2'
+            downColor: 'purple lighten-2',
+            betting: false
         };
     },
     watch: {
-        // game: {
-        //     handler: function(oldVal, newVal){
-        //         console.log('game changed...');
-        //         console.log(oldVal);
-        //         console.log(newVal);
-        //     },
-        //     deep: true
-        // },
         'game.Odds1': function(newVal, oldVal) {
         //   console.log('Odds1 changed..');
           this.odds1Trend = newVal > oldVal;
@@ -205,15 +204,17 @@ export default {
                 this.$emit('bet', bet);
                 //Confirm to continue
                 if(!this.confirm) return;
+                this.betting = true;
                 //Post rq
                 await axios.post(API.CreateBet, bet);
                 //Set reg to true
                 this.game.Registered = true;
                 this.$emit("success","Đăng ký chơi thành công!");
-
+                this.betting = false;
             } catch (error) {
                 // throw error;
                 this.$emit("error","Đăng ký thất bại!");
+                this.betting = false;
             }
         },
         timedOutTimer: function(){
@@ -224,8 +225,8 @@ export default {
 </script>
 <style scoped>
 .vs-size{
-    max-width: 60px;
-    max-height: 60px;
+    max-width: 40px;
+    max-height: 40px;
 }
 .country{
     color: #FFB74D
@@ -238,5 +239,15 @@ export default {
 }
 .cash{
     color: #FFB74D;
+}
+.text-end{
+    text-align: end;
+}
+.text-start{
+    text-align: start;
+}
+.checkbox{
+    height: 25px;
+    width: 25px;
 }
 </style>

@@ -11,14 +11,14 @@ namespace Betty.Helper
         {
             f = default(decimal);
             if(string.IsNullOrEmpty(s)) return false;
-            var split = RemoveTwoContinousSplace(s).Split(' ');
+            var split = RemoveTwoContinousSplace(s.Trim()).Split(' ');
             if(split.Count() == 2)
             {
                 if(!TryDivideOperator(split.First().Trim(), out var f1))
                     return false;
                 if(!TryDivideOperator(split.Last().Trim(), out var f2))
                     return false;                    
-                f = f1 + f1;
+                f = f1 + f2;
                 return true;
             }
             return TryDivideOperator(s, out f);

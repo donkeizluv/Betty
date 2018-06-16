@@ -20,6 +20,7 @@ using Microsoft.Extensions.Logging;
 using NLog.Web;
 using NLog.Extensions.Logging;
 using Betty.Livefeeds;
+using System.Linq;
 
 namespace Betty
 {
@@ -53,6 +54,8 @@ namespace Betty
             services.AddDbContext<BettyContext>(options =>
                        options.UseSqlServer(Configuration.GetConnectionString("Default")));
             services.AddScoped<IAuthService, AuthService>();
+            services.AddScoped<IHtmlComposer, HtmlComposer>();
+            services.AddScoped<IMailerService, MailerService>();
             //Http context
             services.AddHttpContextAccessor();
             //SignalR
@@ -65,7 +68,19 @@ namespace Betty
             var jwtSection = Configuration.GetSection(nameof(JwtIssuerOptions));
             var authSection = Configuration.GetSection(nameof(AuthOptions));
             var betSection = Configuration.GetSection(nameof(BetOptions));
+            var mailerSection = Configuration.GetSection(nameof(MailerOptions));
+            var receiverSection = mailerSection.GetSection(nameof(MailerOptions.Receivers));
             //Inject option
+            services.Configure<MailerOptions>(options =>
+            {
+                options.Server = mailerSection[nameof(MailerOptions.Server)];
+                options.Port = int.Parse(mailerSection[nameof(MailerOptions.Port)]);
+                options.Username = mailerSection[nameof(MailerOptions.Username)];
+                options.Pwd = mailerSection[nameof(MailerOptions.Pwd)];
+                options.Suffix = mailerSection[nameof(MailerOptions.Suffix)];
+                options.Receivers = receiverSection.GetChildren().Select(c => c.Value);
+                options.Ad = mailerSection[nameof(MailerOptions.Ad)];
+            });
             services.Configure<JwtIssuerOptions>(options =>
             {
                 options.Issuer = jwtSection[nameof(JwtIssuerOptions.Issuer)];

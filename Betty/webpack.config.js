@@ -10,8 +10,8 @@ module.exports = {
     },
     output: {
         path: __dirname + "/wwwroot/dist/",
-        //filename: "[name]_[chunkhash].js"
-        filename: "app.js",
+        filename: "app_[chunkhash].js"
+        // filename: "app.js",
         // publicPath: '/dist/',
         // chunkFilename: '[name].chunk.js',
         // chunkFilename: '[chunkhash].chunk.js'

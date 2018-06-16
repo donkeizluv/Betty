@@ -19,6 +19,8 @@ using Betty.ViewModels;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Http;
 using System;
+using Microsoft.Extensions.Logging;
+using Betty.Helper;
 
 namespace Betty.Controllers
 {
@@ -29,14 +31,20 @@ namespace Betty.Controllers
         private readonly BettyContext _context;
         private readonly HttpContext _httpContext;
         private readonly BetOptions _options;
+        private readonly IMailerService _mail;
+        private ILogger _logger;
         // IHubContext<FixturesFeed> _hubcontext;
         public BettyController(BettyContext context,
                                 IHttpContextAccessor httpContext,
-                                IOptions<BetOptions> options)
+                                IOptions<BetOptions> options,
+                                IMailerService mail,
+                                ILogger<BettyController> logger)
         {   
             _context = context;
             _httpContext = httpContext.HttpContext;
             _options = options.Value;
+            _mail = mail;
+            _logger = logger;
         }
         [HttpGet]
         [Authorize]
@@ -84,10 +92,11 @@ namespace Betty.Controllers
             var game = await _context.GameOdds.SingleOrDefaultAsync(g => g.Id == bet.Id);
             if(game == null) return BadRequest();
             if(now >= game.Start) return BadRequest();
+            if(bet.Player != 1 && bet.Player != 2) return BadRequest();
             //Check amt
             if(bet.Amt < _options.MinBet || bet.Amt > _options.MaxBet || bet.Amt % _options.Step != 0) return BadRequest();
             //Save
-            await _context.Register.AddAsync(new Register(){
+            var newBet = new Register(){
                 GameId = bet.Id,
                 BetAmt = bet.Amt,
                 BetPlayer = bet.Player,
@@ -97,8 +106,17 @@ namespace Betty.Controllers
                 RefOdds2 = game.Odds2,
                 RefWin1 = game.Win1,
                 RefWin2 = game.Win2
-            });
+            };
+            await _context.Register.AddAsync(newBet);
             await _context.SaveChangesAsync();
+            try
+            {
+                await _mail.MailNewBet(game, newBet);
+            }
+            catch (Exception ex)
+            {
+                Utility.LogException(ex, _logger);
+            }
             return Ok();
         }
         private string ContextUsername()
