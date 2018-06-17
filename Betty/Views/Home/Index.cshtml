@@ -1,9 +1,14 @@
-﻿@{
-    ViewData["Title"] = "Main page";
+﻿@inject Microsoft.AspNetCore.Hosting.IHostingEnvironment env
+@{
+    ViewData["Title"] = "Betty";
 }
 <div id="app"></div>
+<environment include="Development">
+    <link rel="stylesheet" href="./dist/app.css">
+    <script src="/dist/app.js"></script>
+</environment>
+<environment exclude="Development">
+    <link rel="stylesheet" asp-href-include="~/dist/app_*.css">
+    <script asp-src-include="~/dist/app_*.js"></script>    
+</environment>
 
-<link rel="stylesheet" href="./dist/app.css">
-<!-- <script src="/dist/app.js"></script> -->
-@*Prod*@
-<script asp-src-include="~/dist/app_*.js"></script>

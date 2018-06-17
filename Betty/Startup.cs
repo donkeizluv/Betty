@@ -156,6 +156,11 @@ namespace Betty
             Microsoft.AspNetCore.Hosting.IHostingEnvironment env,
             ILoggerFactory loggerFactory)
         {
+            #if DEBUG
+                env.EnvironmentName = "Development";
+            #else
+                env.EnvironmentName = "Production";
+            #endif
             //Nlog
             env.ConfigureNLog("NLog.config");
             //add NLog to ASP.NET Core

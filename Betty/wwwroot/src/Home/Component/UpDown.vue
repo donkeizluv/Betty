@@ -48,19 +48,19 @@ export default {
         },
         'upColor': {
             type: String,
-            default: 'lime lighten-2'
+            default: 'lime accent-2'
         },
         'downColor': {
             type: String,
-            default: 'purple lighten-2'
+            default: 'pink accent-2'
         },
         'upColorNumber': {
             type: String,
-            default: 'lime--text text--lighten-2'
+            default: 'lime--text text--accent-2'
         },
         'downColorNumber': {
             type: String,
-            default: 'blue--text text--lighten-3'
+            default: 'pink--text text--accent-2'
         },
         'defaultColor': {
             type: String,

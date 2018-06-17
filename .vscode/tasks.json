@@ -4,12 +4,83 @@
         {
             "label": "build",
             "command": "dotnet",
-            "type": "process",
+            "type": "shell",
             "args": [
                 "build",
                 "${workspaceFolder}/Betty/Betty.csproj"
             ],
+            "options":{
+                "cwd": "${workspaceFolder}/Betty"
+            },
+            "dependsOn": "nodebuild",
             "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "buildrelease",
+            "command": "dotnet",
+            "type": "shell",
+            "args": [
+                "build",
+                "Betty.csproj",
+                "-c",
+                "Release"
+            ],
+            "options":{
+                "cwd": "${workspaceFolder}/Betty"
+            },
+            "dependsOn": "nodebuildrelease",
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "publish",
+            "command": "dotnet",
+            "options":{
+                "cwd": "${workspaceFolder}/Betty"
+            },
+            "args": [
+                "publish",
+                "-c",
+                "Release"
+            ],
+            "type": "shell",
+            "dependsOn": "nodebuildmin",
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "nodebuildmin",
+            "command": "npm",
+            "args": [
+                "run",
+                "build-min"
+            ],
+            "options":{
+                "cwd": "${workspaceFolder}/Betty"
+            },
+            "type": "shell"
+        },
+        {
+            "label": "nodebuild",
+            "command": "npm",
+            "args": [
+                "run",
+                "build"
+            ],
+            "options":{
+                "cwd": "${workspaceFolder}/Betty"
+            },
+            "type": "shell"
+        },
+        {
+            "label": "nodebuildrelease",
+            "command": "npm",
+            "args": [
+                "run",
+                "build-release"
+            ],
+            "options":{
+                "cwd": "${workspaceFolder}/Betty"
+            },
+            "type": "shell"
         }
     ]
 }

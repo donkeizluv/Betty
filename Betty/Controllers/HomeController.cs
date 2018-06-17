@@ -20,10 +20,10 @@ namespace Betty.Controllers
 
         [HttpGet]
         [AllowAnonymous]
-        public async Task<IActionResult> Index()
+        public IActionResult Index()
         {
             ViewData["Title"] = "Betty";
-            return await Task.FromResult(View());
+            return View();
         }
 
         public IActionResult Error()
