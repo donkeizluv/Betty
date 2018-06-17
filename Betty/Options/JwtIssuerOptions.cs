@@ -39,9 +39,9 @@ namespace Betty.Options
         public DateTime IssuedAt => DateTime.UtcNow;
 
         /// <summary>
-        /// Set the timespan the token will be valid for (default is 120 min)
+        /// Set the timespan the token will be valid for (default is 1 day)
         /// </summary>
-        public TimeSpan ValidFor { get; set; } = TimeSpan.FromMinutes(120);
+        public TimeSpan ValidFor { get; set; } = TimeSpan.FromDays(1);
 
 
 

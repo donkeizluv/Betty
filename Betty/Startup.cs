@@ -103,10 +103,10 @@ namespace Betty
             });
             var tokenValidationParameters = new TokenValidationParameters
             {
-                ValidateIssuer = true,
+                // ValidateIssuer = true,
                 ValidIssuer = jwtSection[nameof(JwtIssuerOptions.Issuer)],
 
-                ValidateAudience = true,
+                // ValidateAudience = true,
                 ValidAudience = jwtSection[nameof(JwtIssuerOptions.Audience)],
 
                 ValidateIssuerSigningKey = true,

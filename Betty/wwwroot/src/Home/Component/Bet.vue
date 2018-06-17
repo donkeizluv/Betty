@@ -30,6 +30,7 @@
                             :step="step"
                             :key="game.Id"
                             :confirm="confirm"
+                            :now="now"
                             @error="emitError"
                             @success="emitSuccess"
                             @bet="userBet"/>
@@ -67,6 +68,7 @@ export default {
         return {
             maxBet: 0,
             minBet: 0,
+            now: null,
             step: 0,
             gameList: [],
             dialog: false,
@@ -98,6 +100,7 @@ export default {
                 this.gameList = data.Games;
                 this.maxBet = data.MaxBet;
                 this.minBet = data.MinBet;
+                this.now = data.Now;
                 this.step = data.Step;
             } catch (error) {
                 // Alert error...

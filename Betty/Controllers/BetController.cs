@@ -52,13 +52,18 @@ namespace Betty.Controllers
         {
             var vm = new BetVM();
             var now = DateTime.Now;
+            vm.Now = now;
             vm.MaxBet = _options.MaxBet;
             vm.MinBet = _options.MinBet;
             vm.Step = _options.Step;
             //Add not expired games
-            var gameList = await BaseQuery().Where(g => g.Start >= now).OrderBy(g => g.Start).ToListAsync();
-            //Add expired games
-            gameList.AddRange(await BaseQuery().Where(g => g.Start < now).OrderBy(g => g.Start).ToListAsync());
+            var gameList = await BaseQuery()
+                            .Where(g => g.Start >= now)
+                            .OrderBy(g => g.Start)
+                            .Concat(BaseQuery() //Expired games
+                                .Where(g => g.Start < now)
+                                .OrderByDescending(g => g.Start))
+                            .ToListAsync();
             vm.Games = gameList;
             return Ok(vm);
         }
@@ -94,7 +99,9 @@ namespace Betty.Controllers
             if(now >= game.Start) return BadRequest();
             if(bet.Player != 1 && bet.Player != 2) return BadRequest();
             //Check amt
-            if(bet.Amt < _options.MinBet || bet.Amt > _options.MaxBet || bet.Amt % _options.Step != 0) return BadRequest();
+            if(bet.Amt < _options.MinBet ||
+                bet.Amt > _options.MaxBet ||
+                bet.Amt % _options.Step != 0) return BadRequest();
             //Save
             var newBet = new Register(){
                 GameId = bet.Id,

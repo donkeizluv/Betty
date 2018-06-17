@@ -40,7 +40,8 @@
             <v-card-text class="pt-0">
                 <v-layout justify-center row>
                     <v-flex d-flex lg10>
-                        <counter :date="game.Start"
+                        <counter :to="game.Start"
+                            :from="now"
                             prefix="Còn lại:"
                             @timedout="timedOutTimer"/>
                     </v-flex>
@@ -115,6 +116,10 @@ export default {
         },
         "minBet":{
             type: Number,
+            required: true
+        },
+        "now":{
+            type: String,
             required: true
         },
         "step":{

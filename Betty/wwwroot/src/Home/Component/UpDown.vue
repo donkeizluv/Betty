@@ -60,7 +60,7 @@ export default {
         },
         'downColorNumber': {
             type: String,
-            default: 'purple--text text--lighten-2'
+            default: 'blue--text text--lighten-3'
         },
         'defaultColor': {
             type: String,

@@ -35,18 +35,22 @@
 <script>
 import parse from 'date-fns/parse'
 export default {
-    created: function () {
-        if(this.date){
-            this.dateTick = Math.trunc(parse(this.date) / 1000);
+    created () {
+        if(this.to){
+            this.toTick = Math.trunc(parse(this.to) / 1000);
         }
         else{
-            this.dateTick = 0;
+            this.toTick = 0;
         }
-        this.tick();
+        this.tick(); //First tick
         this.timerId = window.setInterval(this.tick, 1000);
     },
     props : {
-        date : {
+        from: {
+            type: String,
+            required: true
+        },
+        to : {
             type: String,
             required: true
         },
@@ -57,25 +61,24 @@ export default {
     },
     data() {
         return {
-            now: Math.trunc((new Date()).getTime() / 1000),
-            dateTick: null,
+            fromTick: Math.trunc(parse(this.from).getTime() / 1000),
+            toTick: null,
             timerId: null,
             timedOut: false
         }
     },
     methods: {
-        tick: function(){
-            let nowTick = Math.trunc((new Date()).getTime() / 1000);
-            if(nowTick >= this.dateTick){
+        tick(){
+            if(this.fromTick >= this.toTick){
                 this.$emit('timedout');
                 this.timedOut = true;
                 if(this.timerId)
                     window.clearInterval(this.timerId);
                 return;
             }
-            this.now = nowTick;
+            this.fromTick++;
         },
-        twoDigit: function(value){
+        twoDigit(value){
             if(!value) return "00";
             if(value.toString().length <= 1) {
                 return "0"+value.toString();
@@ -84,20 +87,17 @@ export default {
         }
     },
     computed: {
-        // dateNumber(){
-        //     return Math.trunc(this.date / 1000)
-        // },
         seconds() {
-            return this.twoDigit(this.timedOut? 0 : (this.dateTick - this.now) % 60);
+            return this.twoDigit(this.timedOut? 0 : (this.toTick - this.fromTick) % 60);
         },
         minutes() {
-            return this.twoDigit(this.timedOut? 0 : Math.trunc((this.dateTick - this.now) / 60) % 60);
+            return this.twoDigit(this.timedOut? 0 : Math.trunc((this.toTick - this.fromTick) / 60) % 60);
         },
         hours() {
-            return this.twoDigit(this.timedOut? 0 : Math.trunc((this.dateTick - this.now) / 60 / 60) % 24);
+            return this.twoDigit(this.timedOut? 0 : Math.trunc((this.toTick - this.fromTick) / 60 / 60) % 24);
         },
         days() {
-            return this.twoDigit(this.timedOut? 0 : Math.trunc((this.dateTick - this.now) / 60 / 60 / 24));
+            return this.twoDigit(this.timedOut? 0 : Math.trunc((this.toTick - this.fromTick) / 60 / 60 / 24));
         }
     }
 }

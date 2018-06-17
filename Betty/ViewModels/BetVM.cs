@@ -7,6 +7,7 @@ namespace Betty.ViewModels
 {
     public class BetVM
     {
+        public DateTime Now { get; set; }
         public IEnumerable<GameOddsDto> Games { get; set; }
         public long MaxBet { get; set; }
         public long MinBet { get; set; }
