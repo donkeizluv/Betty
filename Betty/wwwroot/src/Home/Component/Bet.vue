@@ -19,7 +19,7 @@
                         color="green lighten-2"
                         hide-details></v-switch>
                 </v-flex>
-                <v-flex d-flex lg2 md2 sm4 xs5>
+                <v-flex d-flex lg1 offset-lg0 md2 offset-md1 sm3 xs5>
                     <span v-if="livefeedError">Live: OFF</span>
                     <span v-else>
                         Live: ON

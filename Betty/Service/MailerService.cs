@@ -36,7 +36,7 @@ namespace Betty.Service
             _composer.AppendText("p", $"Bet amount: <b>{bet.BetAmt.ToString("#,##0")}</b>");
             _composer.AppendText("p", "With:");
             _composer.AppendText("p", $"Handicap: <b>{Math.Round(bet.RefOdds1, 3)} | {Math.Round(bet.RefOdds2, 3)}</b>");
-            _composer.AppendText("p", $"O/U: <b>{Math.Round(bet.RefWin1, 3)} | {Math.Round(bet.RefWin2, 3)}</b>");
+            _composer.AppendText("p", $"H/A: <b>{Math.Round(bet.RefWin1, 3)} | {Math.Round(bet.RefWin2, 3)}</b>");
             _composer.AppendText("br", string.Empty);
             _composer.AppendText("p", $"Bet more at: {_options.Ad}");
             _composer.AppendText("p", "Thanks for playing :D");

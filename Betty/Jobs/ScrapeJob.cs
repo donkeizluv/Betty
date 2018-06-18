@@ -70,8 +70,8 @@ namespace Betty.Jobs
                                     //Update odds
                                     foundRow = true;
                                     var handicapString = StringHelper.CleanInnerText(tr.SelectSingleNode("./td[4]")?.InnerText);
-                                    var win1String = StringHelper.CleanInnerText(tr.SelectSingleNode("./td[6]")?.InnerText);
-                                    var win2String = StringHelper.CleanInnerText(tr.SelectSingleNode("./td[8]")?.InnerText);
+                                    var win1String = StringHelper.CleanInnerText(tr.SelectSingleNode("./td[3]")?.InnerText);
+                                    var win2String = StringHelper.CleanInnerText(tr.SelectSingleNode("./td[5]")?.InnerText);
                                     var splitHandicap = handicapString.Split(':');
                                     if(splitHandicap.Count() != 2)
                                     {

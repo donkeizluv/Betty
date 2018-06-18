@@ -56,7 +56,7 @@
                        <up-down class="title" :status="odds2Trend" :value="game.Odds2" :show-before="false"/>
                    </v-flex>
                    <v-flex d-inline-flex lg1 md4 xs4>
-                       <span class="body-2 prefix">O/U</span>
+                       <span class="body-2 prefix">H/A</span>
                    </v-flex>
                    <v-flex d-inline-flex lg5 md7 xs8>
                        <up-down class="title" :status="win1Trend" :value="game.Win1"/>
