@@ -57,17 +57,17 @@ namespace Betty.Controllers
             vm.MinBet = _options.MinBet;
             vm.Step = _options.Step;
             //Add not expired games
-            var gameList = await BaseQuery()
+            var gameList = await BaseQuery(now)
                             .Where(g => g.Start >= now)
                             .OrderBy(g => g.Start)
-                            .Concat(BaseQuery() //Expired games
+                            .Concat(BaseQuery(now) //Expired games
                                 .Where(g => g.Start < now)
                                 .OrderByDescending(g => g.Start))
                             .ToListAsync();
             vm.Games = gameList;
             return Ok(vm);
         }
-        private IQueryable<GameOddsDto> BaseQuery()
+        private IQueryable<GameOddsDto> BaseQuery(DateTime baseTime)
         {
             return _context.GameOdds.Select(g => new GameOddsDto(){
                 Id = g.Id,
@@ -81,6 +81,7 @@ namespace Betty.Controllers
                 Win2 = g.Win2,
                 MatchType = g.MatchType,
                 Start = g.Start,
+                Expired = baseTime > g.Start,
                 Registered = _context.Register.Any(r => r.GameId == g.Id && r.Username == ContextUsername())});
         }
         [HttpPost]

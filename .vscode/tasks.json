@@ -40,7 +40,8 @@
             "args": [
                 "publish",
                 "-c",
-                "Release"
+                "Release",
+                "--clean"
             ],
             "type": "shell",
             "dependsOn": "nodebuildmin",

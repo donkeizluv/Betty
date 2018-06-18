@@ -17,5 +17,6 @@ namespace Betty.DTO
         public decimal Win2 { get; set; }
         public DateTime Start { get; set; }
         public bool Registered { get; set; }
+        public bool Expired { get; set; }
     }
 }

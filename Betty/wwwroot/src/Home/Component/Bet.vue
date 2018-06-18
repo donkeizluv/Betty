@@ -1,6 +1,6 @@
 ﻿<template id="bet">
    <v-container fluid>
-            <v-dialog v-model="dialog" max-width="290">
+            <v-dialog v-model="dialog" max-width="350">
                 <v-card>
                     <v-card-title class="headline">Cảnh báo!</v-card-title>
                     <v-card-text>Livefeed tỉ lệ đã tắt, có thể tỉ lệ ko phải là mới nhất. Bạn hãy cân nhắc cẩn thận.</v-card-text>
@@ -11,29 +11,35 @@
                     </v-card-actions>
                 </v-card>
             </v-dialog>
-            <v-layout class="mb-2" justify-end row>
-                <v-flex flex lg1 md1 sm2 xs5>
-                    <span v-if="livefeedError">Livefeed: <b>OFF</b></span>
-                    <span v-else>
-                        Livefeed: <b>ON</b>
-                    </span>
+            <v-layout class="mb-2" justify-center align-center row wrap>
+                <v-flex d-flex lg2 md2 sm4 xs5>
+                    <v-switch
+                        v-model="showAll"
+                        label="Show all"
+                        color="green lighten-2"
+                        hide-details></v-switch>
                 </v-flex>
-                <v-flex lg1 md1 sm1 xs5>
+                <v-flex d-flex lg2 md2 sm4 xs5>
+                    <span v-if="livefeedError">Live: OFF</span>
+                    <span v-else>
+                        Live: ON
+                    </span>
                     <spinner v-show="showSpinner" width="5px" height="10px"></spinner>
                 </v-flex>
             </v-layout>
             <v-layout justify-center row wrap>
                 <template v-for="game in gameList">
-                    <match-bet :game.sync="game"
+                    <v-slide-x-transition :key="game.Id">
+                        <match-bet :game.sync="game"
                             :minBet="minBet"
                             :maxBet="maxBet"
                             :step="step"
-                            :key="game.Id"
                             :confirm="confirm"
                             :now="now"
                             @error="emitError"
                             @success="emitSuccess"
                             @bet="userBet"/>
+                    </v-slide-x-transition>
                 </template>
             </v-layout>
     </v-container>
@@ -70,9 +76,10 @@ export default {
             minBet: 0,
             now: null,
             step: 0,
-            gameList: [],
+            games: [],
             dialog: false,
-            confirm: true
+            confirm: true,
+            showAll: false
         }
     },
     watch:{
@@ -83,6 +90,11 @@ export default {
         }
     },
     computed: {
+        gameList(){
+            if(this.showAll)
+                return this.games;
+            return this.games.filter(g => !g.Expired);
+        },
         livefeed(){
             return this.$store.getters.livefeed;
         },
@@ -97,7 +109,7 @@ export default {
         init: async function(){
             try {
                 var { data } = await axios.get(API.BetVM);
-                this.gameList = data.Games;
+                this.games = data.Games;
                 this.maxBet = data.MaxBet;
                 this.minBet = data.MinBet;
                 this.now = data.Now;
@@ -124,7 +136,7 @@ export default {
             // console.log(games);
             //Update data
             games.forEach(g => {
-                var game = this.gameList.find(game => game.Id == g.Id);
+                var game = this.games.find(game => game.Id == g.Id);
                 if(game){
                     game.Odds1 = g.Odds1;
                     game.Odds2 = g.Odds2;
