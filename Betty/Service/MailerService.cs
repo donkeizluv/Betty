@@ -16,13 +16,15 @@ namespace Betty.Service
     {
         private readonly MailerOptions _options;
         private readonly IHtmlComposer _composer;
-        public MailerService(IOptions<MailerOptions> options, IHtmlComposer composer)
+        private readonly IMailQueue _queue;
+        public MailerService(IOptions<MailerOptions> options, IHtmlComposer composer, IMailQueue queue)
         {
             _options = options.Value;
             _composer = composer;
+            _queue = queue;
         }
 
-        public async Task MailCancelBet(Register bet)
+        public void MailCancelBet(Register bet)
         {
             _composer.AppendText("p", $"Cancel bet: <b>{bet.Username}</b>");
             _composer.AppendText("p", $"<b>{bet.Game.Player1} vs {bet.Game.Player2}</b> - {bet.Game.Start.ToString("dd-MM-yyyy hh:mm")}");
@@ -44,12 +46,10 @@ namespace Betty.Service
             }
             //CC bet owner
             mail.CC.Add(CreateMailAddress(bet.Username));
-            var smtp = new SmtpClient(_options.Server, _options.Port);
-            smtp.Credentials = new NetworkCredential(_options.Username, _options.Pwd);
-            await smtp.SendMailAsync(mail);
+            _queue.Enqueue(mail);
         }
 
-        public async Task MailNewBet(GameOdds game, Register bet)
+        public void MailNewBet(GameOdds game, Register bet)
         {
             _composer.AppendText("p", $"New bet from: <b>{bet.Username}</b>");
             _composer.AppendText("p", $"<b>{game.Player1} vs {game.Player2}</b> - {game.Start.ToString("dd-MM-yyyy hh:mm")}");
@@ -83,9 +83,7 @@ namespace Betty.Service
             }
             //CC bet owner
             mail.CC.Add(CreateMailAddress(bet.Username));
-            var smtp = new SmtpClient(_options.Server, _options.Port);
-            smtp.Credentials = new NetworkCredential(_options.Username, _options.Pwd);
-            await smtp.SendMailAsync(mail);
+            _queue.Enqueue(mail);
         }
         private MailAddress CreateMailAddress(string s)
         {

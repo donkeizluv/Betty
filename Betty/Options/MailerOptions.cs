@@ -12,5 +12,6 @@ namespace Betty.Options
         public string Suffix { get; set; }
         public IEnumerable<string> Receivers { get; set; }
         public string Ad { get; set; }
+        public bool Disabled { get; set; }
     }
 }

@@ -6,7 +6,7 @@ namespace Betty.Service
 {
     public interface IMailerService
     {
-       Task MailNewBet(GameOdds game, Register bet);
-       Task MailCancelBet(Register bet);
+       void MailNewBet(GameOdds game, Register bet);
+       void MailCancelBet(Register bet);
     }
 }

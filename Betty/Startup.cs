@@ -48,6 +48,7 @@ namespace Betty
         {
             //Jobs
             services.AddSingleton<IHostedService, ScrapeJob>();
+            services.AddSingleton<IHostedService, MailJob>();
             //Jwt
             services.AddSingleton<IJwtFactory, JwtFactory>();
             //Inject db context
@@ -57,6 +58,8 @@ namespace Betty
             services.AddScoped<IHtmlComposer, HtmlComposer>();
             services.AddScoped<IMailerService, MailerService>();
             services.AddScoped<IBetService, BetService>();
+            //Singleton
+            services.AddSingleton<IMailQueue, MailQueue>();
             //Http context
             services.AddHttpContextAccessor();
             //SignalR
@@ -81,6 +84,7 @@ namespace Betty
                 options.Suffix = mailerSection[nameof(MailerOptions.Suffix)];
                 options.Receivers = receiverSection.GetChildren().Select(c => c.Value);
                 options.Ad = mailerSection[nameof(MailerOptions.Ad)];
+                options.Disabled = mailerSection[nameof(MailerOptions.Disabled)] == "1";
             });
             services.Configure<JwtIssuerOptions>(options =>
             {

@@ -61,38 +61,33 @@ namespace Betty.Service
                 .Include(r => r.Game)
                 .SingleOrDefaultAsync();
             //Valid reg from context user
-            if(reg == null)
+            if (reg == null)
                 throw new ArgumentException("Bet not valid");
             //Check expired
-            if(reg.Game.Start <= now)
+            if (reg.Game.Start <= now)
                 throw new ArgumentException("Game has started");
             //OK, proceed to remove
             _context.Register.Remove(reg);
             await _context.SaveChangesAsync();
-            try
-            {
-                await _mail.MailCancelBet(reg);
-            }
-            catch (Exception ex)
-            {
-                Utility.LogException(ex, _logger);
-            }
+            _mail.MailCancelBet(reg);
         }
         public async Task Create(BetDto bet)
         {
             var now = DateTime.Now;
-            if(await _context.Register.AnyAsync(r => r.GameId == bet.Id && r.Username == Username))
+            if (await _context.Register.AnyAsync(r => r.GameId == bet.Id && r.Username == Username))
                 throw new ArgumentException("This bet has already been made");
             //Get game
             var game = await _context.GameOdds.SingleOrDefaultAsync(g => g.Id == bet.Id && now < g.Start);
-            if(game == null)
+            if (game == null)
                 throw new ArgumentException("Invalid game id");
             //Check amt
-            if(bet.Amt < _options.MinBet ||
+            if (bet.Amt < _options.MinBet ||
                 bet.Amt > _options.MaxBet ||
-                bet.Amt % _options.Step != 0) throw new ArgumentException("Bet amount is not valid");
+                bet.Amt % _options.Step != 0)
+                throw new ArgumentException("Bet amount is not valid");
             //Save
-            var newBet = new Register(){
+            var newBet = new Register()
+            {
                 GameId = bet.Id,
                 BetAmt = bet.Amt,
                 BetPlayer = bet.Player,
@@ -105,18 +100,12 @@ namespace Betty.Service
             };
             await _context.Register.AddAsync(newBet);
             await _context.SaveChangesAsync();
-            try
-            {
-                await _mail.MailNewBet(game, newBet);
-            }
-            catch (Exception ex)
-            {
-                Utility.LogException(ex, _logger);
-            }
+            _mail.MailNewBet(game, newBet);
         }
         private IQueryable<GameOddsDto> BaseQuery(DateTime baseTime)
         {
-            return _context.GameOdds.Select(g => new GameOddsDto(){
+            return _context.GameOdds.Select(g => new GameOddsDto()
+            {
                 Id = g.Id,
                 Player1 = g.Player1,
                 CountryCode1 = g.CountryCode1,
@@ -132,7 +121,8 @@ namespace Betty.Service
                 TotalReg = g.Register.Count,
                 Player1Reg = g.Register.Where(r => r.BetPlayer == 1).Count(),
                 Player2Reg = g.Register.Where(r => r.BetPlayer == 2).Count(),
-                Registered = g.Register.Any(r => r.Username == Username)});
+                Registered = g.Register.Any(r => r.Username == Username)
+            });
         }
         private string Username => _httpContext.User.Claims.First(c => c.Type == CustomClaims.Username).Value.ToLower();
     }
