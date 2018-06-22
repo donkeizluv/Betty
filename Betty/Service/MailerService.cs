@@ -21,6 +21,34 @@ namespace Betty.Service
             _options = options.Value;
             _composer = composer;
         }
+
+        public async Task MailCancelBet(Register bet)
+        {
+            _composer.AppendText("p", $"Cancel bet: <b>{bet.Username}</b>");
+            _composer.AppendText("p", $"<b>{bet.Game.Player1} vs {bet.Game.Player2}</b> - {bet.Game.Start.ToString("dd-MM-yyyy hh:mm")}");
+            _composer.AppendText("br", string.Empty);
+            _composer.AppendText("p", $"Bet more at: {_options.Ad}");
+            _composer.AppendText("p", "Thanks for playing :D");
+
+            var mail = new MailMessage()
+            {
+                From = CreateMailAddress(_options.Username),
+                IsBodyHtml = true,
+                Body = _composer.ToString(),
+                Subject = "Bet canceled"
+            };
+            //Add receivers
+            foreach (var address in _options.Receivers.Select(r => CreateMailAddress(r)))
+            {
+                mail.To.Add(address);
+            }
+            //CC bet owner
+            mail.CC.Add(CreateMailAddress(bet.Username));
+            var smtp = new SmtpClient(_options.Server, _options.Port);
+            smtp.Credentials = new NetworkCredential(_options.Username, _options.Pwd);
+            await smtp.SendMailAsync(mail);
+        }
+
         public async Task MailNewBet(GameOdds game, Register bet)
         {
             _composer.AppendText("p", $"New bet from: <b>{bet.Username}</b>");
@@ -46,7 +74,7 @@ namespace Betty.Service
                 From = CreateMailAddress(_options.Username),
                 IsBodyHtml = true,
                 Body = _composer.ToString(),
-                Subject = "Bet confirm"
+                Subject = "Bet confirmed"
             };
             //Add receivers
             foreach (var address in _options.Receivers.Select(r => CreateMailAddress(r)))

@@ -15,5 +15,7 @@ namespace Betty.EFModel
         public decimal RefOdds2 { get; set; }
         public decimal RefWin1 { get; set; }
         public decimal RefWin2 { get; set; }
+
+        public GameOdds Game { get; set; }
     }
 }

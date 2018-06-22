@@ -4,5 +4,6 @@
     Ping: '/Auth/Ping',
     //Get beting VM
     BetVM: '/API/Betty/Get',
-    CreateBet: '/API/Betty/Create'
+    CreateBet: '/API/Betty/Create',
+    CancelBet: '/API/Betty/Cancel'
 }

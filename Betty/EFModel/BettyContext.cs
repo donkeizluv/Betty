@@ -70,6 +70,12 @@ namespace Betty.EFModel
                 entity.Property(e => e.Username)
                     .IsRequired()
                     .HasMaxLength(50);
+
+                entity.HasOne(d => d.Game)
+                    .WithMany(p => p.Register)
+                    .HasForeignKey(d => d.GameId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_Register_GameOdds");
             });
         }
     }

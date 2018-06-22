@@ -82,23 +82,25 @@ namespace Betty.Controllers
                 MatchType = g.MatchType,
                 Start = g.Start,
                 Expired = baseTime > g.Start,
-                Registered = _context.Register.Any(r => r.GameId == g.Id && r.Username == ContextUsername())});
+                TotalReg = g.Register.Count,
+                Player1Reg = g.Register.Where(r => r.BetPlayer == 1).Count(),
+                Player2Reg = g.Register.Where(r => r.BetPlayer == 2).Count(),
+                Registered = g.Register.Any(r => r.Username == ContextUsername)});
         }
         [HttpPost]
         [Authorize]
         public async Task<IActionResult> Create([FromBody] BetDto bet)
         { 
             if(!ModelState.IsValid) return BadRequest();
+            if(bet.Player != 1 && bet.Player != 2) return BadRequest();
             var now = DateTime.Now;
-            var userName = ContextUsername();
-            //Checj already reg
+            var userName = ContextUsername;
+            //Check already reg
             if(await _context.Register.AnyAsync(r => r.GameId == bet.Id && r.Username == userName))
                 return BadRequest(); 
-            //Check timed out
-            var game = await _context.GameOdds.SingleOrDefaultAsync(g => g.Id == bet.Id);
+            //Get game
+            var game = await _context.GameOdds.SingleOrDefaultAsync(g => g.Id == bet.Id && now < g.Start);
             if(game == null) return BadRequest();
-            if(now >= game.Start) return BadRequest();
-            if(bet.Player != 1 && bet.Player != 2) return BadRequest();
             //Check amt
             if(bet.Amt < _options.MinBet ||
                 bet.Amt > _options.MaxBet ||
@@ -127,9 +129,35 @@ namespace Betty.Controllers
             }
             return Ok();
         }
-        private string ContextUsername()
+
+        [HttpPost]
+        [Authorize]
+        public async Task<IActionResult> Cancel([FromBody] CancelDto cancel)
         {
-            return _httpContext.User.Claims.First(c => c.Type == CustomClaims.Username).Value.ToLower();
+            if(!ModelState.IsValid) return BadRequest();
+            var userName = ContextUsername;
+            var now = DateTime.Now;
+            var reg = await _context.Register
+                .Where(r => r.GameId == cancel.Id && r.Username == userName)
+                .Include(r => r.Game)
+                .SingleOrDefaultAsync();
+            //Valid reg from context user
+            if(reg == null) return BadRequest();
+            //Check expired
+            if(reg.Game.Start <= now) return BadRequest();
+            //OK, proceed to remove
+            _context.Register.Remove(reg);
+            await _context.SaveChangesAsync();
+            try
+            {
+                await _mail.MailCancelBet(reg);
+            }
+            catch (Exception ex)
+            {
+                Utility.LogException(ex, _logger);
+            }
+            return Ok();
         }
+        private string ContextUsername => _httpContext.User.Claims.First(c => c.Type == CustomClaims.Username).Value.ToLower();
     }
 }

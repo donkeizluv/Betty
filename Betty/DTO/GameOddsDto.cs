@@ -15,6 +15,9 @@ namespace Betty.DTO
         public decimal Odds2 { get; set; }
         public decimal Win1 { get; set; }
         public decimal Win2 { get; set; }
+        public int TotalReg { get; set; }
+        public int Player1Reg { get; set; }
+        public int Player2Reg { get; set; }
         public DateTime Start { get; set; }
         public bool Registered { get; set; }
         public bool Expired { get; set; }

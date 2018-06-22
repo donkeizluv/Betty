@@ -1,31 +1,31 @@
 <template>
     <v-layout align-center row>
-        <v-flex>
-            <span class="body-2 prefix">
+        <v-flex v-show="showPrefix" sm2 xs2>
+            <span class="caption prefix">
                 {{prefix}}
             </span>
         </v-flex>
         <v-layout column>
-            <v-flex xs1 wrap>
-                <span :class="[timedOut ? 'red-digit' : 'digit', 'display-1']">{{days}}</span>
+            <v-flex sm1 xs1 wrap>
+                <span :class="[timedOut ? 'red-digit' : 'digit', numberClass]">{{days}}</span>
                 <span class="text">Ngày</span>
             </v-flex>
         </v-layout>
-        <v-layout column >
-            <v-flex xs1 wrap>
-                <span :class="[timedOut ? 'red-digit' : 'digit', 'display-1']">{{hours}}</span>
+        <v-layout column>
+            <v-flex sm1 xs1 wrap>
+                <span :class="[timedOut ? 'red-digit' : 'digit', numberClass]">{{hours}}</span>
                 <span class="text">Giờ</span>
             </v-flex>
         </v-layout>
         <v-layout column>
-            <v-flex xs1 wrap>
-                <span :class="[timedOut ? 'red-digit' : 'digit', 'display-1']">{{minutes}}</span>
+            <v-flex sm1 xs1 wrap>
+                <span :class="[timedOut ? 'red-digit' : 'digit', numberClass]">{{minutes}}</span>
                 <span class="text">Phút</span>
             </v-flex>
         </v-layout>
         <v-layout column>
-            <v-flex xs1 wrap>
-                <span :class="[timedOut ? 'red-digit' : 'digit', 'display-1']">{{seconds}}</span>
+            <v-flex sm1 xs1 wrap>
+                <span :class="[timedOut ? 'red-digit' : 'digit', numberClass]">{{seconds}}</span>
                 <span class="text">Giây</span>
             </v-flex>
         </v-layout>
@@ -56,7 +56,11 @@ export default {
         },
         prefix: {
             type: String,
-            default: 'Countdown:'
+            default: null
+        },
+        numberClass: {
+            type: String,
+            default: "headline"
         }
     },
     data() {
@@ -87,6 +91,9 @@ export default {
         }
     },
     computed: {
+        showPrefix(){
+            return !!this.prefix;
+        },
         seconds() {
             return this.twoDigit(this.timedOut? 0 : (this.toTick - this.fromTick) % 60);
         },

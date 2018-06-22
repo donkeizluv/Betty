@@ -1,5 +1,5 @@
 <template>
-    <span>
+    <span class="inline-flex">
         <span v-show="!showBefore" :class="numberColor">{{value}}</span>
         <v-icon :color="color" :class="visible? 'visible' : 'hidden'">{{iconName}}</v-icon>
         <span v-show="showBefore" :class="numberColor">{{value}}</span>
@@ -76,5 +76,8 @@ export default {
 }
 .hidden{
     visibility: hidden;
+}
+.inline-flex{
+    display: inline-flex!important;
 }
 </style>

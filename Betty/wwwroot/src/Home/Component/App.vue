@@ -2,6 +2,7 @@
     <v-app dark toolbar footer>
         <v-snackbar :timeout="5000"
             top
+            multi-line
             :color="snackType"
             v-model="snackbar">
             {{ snackMessage }}
