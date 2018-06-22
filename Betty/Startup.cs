@@ -56,6 +56,7 @@ namespace Betty
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IHtmlComposer, HtmlComposer>();
             services.AddScoped<IMailerService, MailerService>();
+            services.AddScoped<IBetService, BetService>();
             //Http context
             services.AddHttpContextAccessor();
             //SignalR
