@@ -30,7 +30,6 @@ namespace Betty.Controllers
     {
         private readonly ILogger _logger;
         private readonly IBetService _service;
-        // IHubContext<FixturesFeed> _hubcontext;
         public BettyController(ILogger<BettyController> logger, IBetService service)
         {   
             _logger = logger;

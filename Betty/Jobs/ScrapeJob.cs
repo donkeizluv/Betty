@@ -25,13 +25,13 @@ namespace Betty.Jobs
         private readonly BetOptions _options;
         private readonly IServiceProvider _provider;
         private readonly ILogger<ScrapeJob> _logger;
-        private readonly IHubContext<FixturesFeed> _hubcontext;
+        private readonly IHubContext<FixturesFeed> _hubContext;
         public ScrapeJob(IOptions<BetOptions> options,
                             IServiceProvider provider,
                             ILogger<ScrapeJob> logger,
-                            IHubContext<FixturesFeed> hubcontext)
+                            IHubContext<FixturesFeed> hubContext)
         {
-            _hubcontext = hubcontext;
+            _hubContext = hubContext;
             _options = options.Value;
             _provider = provider;
             _logger = logger;
@@ -128,7 +128,7 @@ namespace Betty.Jobs
                         {
                             //Save & broadcast changes
                             await context.SaveChangesAsync();
-                            await _hubcontext.Clients.All.SendAsync("Fixtures", changed);
+                            await _hubContext.Clients.All.SendAsync("Fixtures", changed);
                         }
                     }         
                 }

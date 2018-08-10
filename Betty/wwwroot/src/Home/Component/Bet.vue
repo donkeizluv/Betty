@@ -45,32 +45,34 @@
     </v-container>
 </template>
 <script>
-import Spinner from 'vue-spinner/src/ScaleLoader.vue'
-import matchBet from './MatchBet.vue'
-import axios from 'axios'
-import API from '../API'
+import Spinner from "vue-spinner/src/ScaleLoader.vue";
+import matchBet from "./MatchBet.vue";
+import axios from "axios";
+import API from "../API";
 export default {
-    name: 'Bet',
-    template: '#bet',
-    created: async function(){
+    name: "Bet",
+    template: "#bet",
+    async created() {
         await this.init();
         //Subscribe to feed
-        if(this.livefeed) {
+        if (this.livefeed) {
             // console.log('Listen to feed..');
             this.livefeed.on("Fixtures", this.livefeedCallback);
+            this.livefeed.on("RegPercentage", this.regPercentageCallback);
         }
     },
-    beforeDestroy: function(){
-        if(this.livefeed) {
+    beforeDestroy: function() {
+        if (this.livefeed) {
             // console.log('Stop listening to feed..');
             this.livefeed.off("Fixtures", this.livefeedCallback);
+            this.livefeed.off("RegPercentage", this.regPercentageCallback);
         }
     },
     components: {
-        'match-bet': matchBet,
-        'spinner' : Spinner
+        "match-bet": matchBet,
+        spinner: Spinner
     },
-    data: function () {
+    data: function() {
         return {
             maxBet: 0,
             minBet: 0,
@@ -80,33 +82,31 @@ export default {
             dialog: false,
             confirm: true,
             showAll: false
-        }
+        };
     },
-    watch:{
-        livefeedError(error){
+    watch: {
+        livefeedError(error) {
             //If no livefeed then confirm needed
-            if(error)
-                this.confirm = false;
+            if (error) this.confirm = false;
         }
     },
     computed: {
-        gameList(){
-            if(this.showAll)
-                return this.games;
+        gameList() {
+            if (this.showAll) return this.games;
             return this.games.filter(g => !g.Expired);
         },
-        livefeed(){
+        livefeed() {
             return this.$store.getters.livefeed;
         },
-        livefeedError(){
+        livefeedError() {
             return this.$store.getters.livefeedError;
         },
-        showSpinner(){
+        showSpinner() {
             return !this.livefeedError;
         }
     },
     methods: {
-        init: async function(){
+        async init() {
             try {
                 var { data } = await axios.get(API.BetVM);
                 this.games = data.Games;
@@ -121,33 +121,41 @@ export default {
         },
         userBet(bet) {
             //Warn if making bet when livefeed is off
-            if(!this.confirm){
+            if (!this.confirm) {
                 this.dialog = true;
             }
-                
         },
-        emitError: function(mess){
+        emitError(mess) {
             this.$emit("error", mess);
         },
-        emitSuccess: function(mess){
+        emitSuccess(mess) {
             this.$emit("success", mess);
         },
-        livefeedCallback: function(games){
+        livefeedCallback(games) {
             // console.log(games);
             //Update data
             games.forEach(g => {
                 var game = this.games.find(game => game.Id == g.Id);
-                if(game){
+                if (game) {
                     game.Odds1 = g.Odds1;
                     game.Odds2 = g.Odds2;
                     game.Win1 = g.Win1;
                     game.Win2 = g.Win2;
                 }
             });
+        },
+        regPercentageCallback(change) {
+            let game = this.games.find(g => g.Id == change.Id);
+            if (!game) return;
+            game.TotalReg += change.Change;
+            if (change.PlayerId == 1) {
+                game.Player1Reg += change.Change;
+                return;
+            }
+            game.Player2Reg += change.Change;
         }
     }
-}
+};
 </script>
 <style scoped>
-
 </style>

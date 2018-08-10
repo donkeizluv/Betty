@@ -1,14 +1,12 @@
 ﻿<template>
     <v-flex class="ma-1" lg5 md6 sm10 xs12>
         <v-card class="text-center cdgrey darken-2">
-            <v-card-title class="pa-2 pt-3">
+            <v-card-title class="ma-2">
                 <v-layout justify-center align-center row wrap>
-                    <!-- <v-flex d-inline-flex xs6>
-                        <counter :to="game.Start"
-                            :from="now"
-                            @timedout="timedOutTimer"/>
-                    </v-flex>                         -->
-                    <v-flex d-inline-flex justify-center align-center class="text-start" lg3 md4 xs5>
+                    <v-flex class="ma-2 mb-3" xs12>
+                        <head-up :f1="p1Percentage" :f2="p2Percentage"/>
+                    </v-flex>
+                    <v-flex d-inline-flex justify-center align-center class="text-start" lg4 md4 xs5>
                         <v-checkbox
                             class="checkbox"
                             v-model="player1"
@@ -16,16 +14,17 @@
                             color="red"
                             value="red"
                             hide-details></v-checkbox>
-                        <span style="min-width: 25px" class="title flag-icon" :class="'flag-icon-' + game.CountryCode1"></span>
-                        <span class="subheading country">{{game.Player1}}</span>
+                        <span class="flag flag-icon" :class="'flag-icon-' + game.CountryCode1"></span>
+                        <span class="country">{{game.Player1}}</span>
                     </v-flex>
-                    <v-flex xs2>
+                    <v-flex class="ma-2" xs1>
+                        <span>VS</span>
                         <!-- <span class="vs-size flag-icon vs"></span> -->
-                        <img class="vs-size flag-icon vs" src="/static/vs.svg">
+                        <!-- <img class="vs-size flag-icon vs" src="/static/vs.svg"> -->
                     </v-flex>
-                    <v-flex d-inline-flex justify-center align-center lg3 md4 xs5>
-                        <span class="subheading country">{{game.Player2}}</span>
-                        <span style="min-width: 25px" class="title flag-icon" :class="'flag-icon-' + game.CountryCode2"></span>
+                    <v-flex d-inline-flex justify-center align-center class="text-end" lg4 md4 xs5>
+                        <span class="country">{{game.Player2}}</span>
+                        <span class="flag flag-icon" :class="'flag-icon-' + game.CountryCode2"></span>
                         <v-checkbox
                             class="checkbox"
                             v-model="player2"
@@ -100,81 +99,83 @@
     </v-flex>
 </template>
 <script>
-import myFooter from './MyFooter.vue'
-import LoginModal from './LoginModal.vue'
-import CountDown from './CountDown.vue'
-import UpDown from './UpDown.vue'
-import API from '../API'
-import axios from 'axios'
+import myFooter from "./MyFooter.vue";
+import LoginModal from "./LoginModal.vue";
+import CountDown from "./CountDown.vue";
+import UpDown from "./UpDown.vue";
+import HeadUp from "./HeadUpGauge.vue";
+import API from "../API";
+import axios from "axios";
 export default {
-    name: 'MatchBet',
-    components:{
-        'counter': CountDown,
-        'up-down': UpDown
+    name: "MatchBet",
+    components: {
+        counter: CountDown,
+        "up-down": UpDown,
+        "head-up": HeadUp
     },
-    props:{
-        "game":{
+    props: {
+        game: {
             type: Object,
             required: true
         },
-        "maxBet":{
+        maxBet: {
             type: Number,
             required: true
         },
-        "minBet":{
+        minBet: {
             type: Number,
             required: true
         },
-        "now":{
+        now: {
             type: String,
             required: true
         },
-        "step":{
+        step: {
             type: Number,
             required: true
         },
-        "confirm":{
+        confirm: {
             type: Boolean,
             required: true
         },
-        "regBefore": {
+        regBefore: {
             type: Number,
             default: 2
         }
     },
     computed: {
-        buttonText(){
-            if(this.reg) return "Đã đăng ký";
-            if(this.timerStop) return "Hết giờ";
+        buttonText() {
+            if (this.reg) return "Đã đăng ký";
+            if (this.timerStop) return "Hết giờ";
             return "Đăng ký";
         },
-        reg(){
+        reg() {
             return this.game.Registered;
         },
-        canSubmit(){
+        canSubmit() {
             //Not reged || timed out & must select player
-            if(this.betting || this.canceling) return false;
-            if(this.reg || this.timerStop) return false;
+            if (this.betting || this.canceling) return false;
+            if (this.reg || this.timerStop) return false;
             return this.player1 || this.player2;
         },
-        canCancel(){
-            if(this.betting || this.canceling) return false;
-            if(!this.reg || this.timerStop) return false;
+        canCancel() {
+            if (this.betting || this.canceling) return false;
+            if (!this.reg || this.timerStop) return false;
             return true;
         },
-        p1Percentage(){
-            if(this.game.TotalReg == 0) return 0;
-            return this.game.TotalReg / this.game.Player1Reg;
+        p1Percentage() {
+            if (this.game.TotalReg == 0) return 0;
+            return Math.round(this.game.Player1Reg / this.game.TotalReg * 100);
         },
-        p2Percentage(){
-            if(this.game.TotalReg == 0) return 0;
-            return this.game.TotalReg / this.game.Player2Reg;
+        p2Percentage() {
+            if (this.game.TotalReg == 0) return 0;
+            return 100 - this.p1Percentage;
         },
         formatAmt() {
             return this.amt.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
         }
     },
-    data: function(){
+    data() {
         return {
             amt: 0,
             player1: false,
@@ -185,126 +186,130 @@ export default {
             odds2Trend: null,
             win1Trend: null,
             win2Trend: null,
-            upColor: 'lime lighten-2',
-            downColor: 'purple lighten-2',
+            upColor: "lime lighten-2",
+            downColor: "purple lighten-2",
             betting: false,
             canceling: false
-
         };
     },
     watch: {
-        'game.Odds1': function(newVal, oldVal) {
-        //   console.log('Odds1 changed..');
-          this.odds1Trend = newVal > oldVal;
+        "game.Odds1"(newVal, oldVal) {
+            //   console.log('Odds1 changed..');
+            this.odds1Trend = newVal > oldVal;
         },
-        'game.Odds2': function(newVal, oldVal) {
-        //   console.log('Odds2 changed..');
-          this.odds2Trend = newVal > oldVal;
+        "game.Odds2"(newVal, oldVal) {
+            //   console.log('Odds2 changed..');
+            this.odds2Trend = newVal > oldVal;
         },
-        'game.Win1': function(newVal, oldVal) {
-        //   console.log('Win1 changed..');
-          this.win1Trend = newVal > oldVal;
+        "game.Win1"(newVal, oldVal) {
+            //   console.log('Win1 changed..');
+            this.win1Trend = newVal > oldVal;
         },
-        'game.Win2': function(newVal, oldVal) {
-        //   console.log('Win2 changed..');
-          this.win2Trend = newVal > oldVal;
+        "game.Win2"(newVal, oldVal) {
+            //   console.log('Win2 changed..');
+            this.win2Trend = newVal > oldVal;
         },
-        player1: function (newVal, oldVal) {
-            if(newVal)
-                this.player2 = false;
+        player1(newVal, oldVal) {
+            if (newVal) this.player2 = false;
         },
-        player2: function (newVal, oldVal) {
-            if(newVal)
-                this.player1 = false;
+        player2(newVal, oldVal) {
+            if (newVal) this.player1 = false;
         }
     },
-    methods:{
-        bet: async function(){
-            if(!this.canSubmit) return;
-            
+    methods: {
+        async bet() {
+            if (!this.canSubmit) return;
+
             try {
                 let bet = {
                     Id: this.game.Id,
                     Amt: this.amt,
-                    Player: this.player1? 1 : 2
+                    Player: this.player1 ? 1 : 2
                 };
-                this.$emit('bet', bet);
+                this.$emit("bet", bet);
                 //Confirm to continue
-                if(!this.confirm) return;
+                if (!this.confirm) return;
                 this.betting = true;
                 //Post rq
                 await axios.post(API.CreateBet, bet);
                 //Set reg to true
                 this.game.Registered = true;
-                this.$emit("success","Đăng ký thành công!");
+                this.$emit("success", "Đăng ký thành công!");
                 this.betting = false;
             } catch (error) {
                 // throw error;
-                this.$emit("error","Đăng ký thất bại!");
+                this.$emit("error", "Đăng ký thất bại!");
                 this.betting = false;
             }
         },
-        cancel: async function(){
-            if(!this.canCancel) return;
+        async cancel() {
+            if (!this.canCancel) return;
             try {
                 let cancel = {
                     Id: this.game.Id
                 };
                 this.canceling = true;
-                this.$emit('cancel', cancel);
+                this.$emit("cancel", cancel);
                 //Post rq
                 await axios.post(API.CancelBet, cancel);
                 //Set reg to true
                 this.game.Registered = false;
-                this.$emit("success","Hủy đăng ký thành công!");
+                this.$emit("success", "Hủy đăng ký thành công!");
                 this.canceling = false;
             } catch (error) {
                 // throw error;
-                this.$emit("error","Hủy thất bại!");
+                this.$emit("error", "Hủy thất bại!");
                 this.canceling = false;
             }
         },
-        timedOutTimer: function(){
+        timedOutTimer() {
             this.timerStop = true;
         }
     }
-}
+};
 </script>
 <style scoped>
-.vs-size{
+.vs-size {
     width: 3.25rem;
     height: 3.25rem;
 }
 .vs {
     /* background-image: url(/static/vs.svg); */
-    filter: invert(.5) sepia(1) saturate(20) hue-rotate(10deg);
+    filter: invert(0.5) sepia(1) saturate(20) hue-rotate(10deg);
 }
-.country{
-    color: #FFB74D
+.flag{
+    min-width: 25px;
+    min-height: 25px;
+    width: 28px;
+    height: 28px;
 }
-.stats{
-    color: #FF6D00
+.country {
+    font-size: 1.4rem;
+    color: #EEFF41;
 }
-.prefix{
-    color: #E0E0E0;
+.stats {
+    color: #ff6d00;
 }
-.cash{
-    color: #FFB74D;
+.prefix {
+    color: #e0e0e0;
 }
-.text-center{
+.cash {
+    color: #ffb74d;
+}
+.text-center {
     text-align: center;
 }
-.text-end{
+.text-end {
     text-align: end;
 }
-.text-start{
+.text-start {
     text-align: start;
 }
-.checkbox{
+.checkbox {
     height: 25px;
     width: 25px;
 }
-.no-wrap{
+.no-wrap {
     flex-wrap: wrap-reverse;
 }
 </style>

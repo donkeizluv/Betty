@@ -6,9 +6,11 @@ using Betty.Const;
 using Betty.DTO;
 using Betty.EFModel;
 using Betty.Helper;
+using Betty.Livefeeds;
 using Betty.Options;
 using Betty.ViewModels;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -22,17 +24,20 @@ namespace Betty.Service
         private readonly BettyContext _context;
         private readonly IMailerService _mail;
         private ILogger _logger;
+        private readonly IHubContext<FixturesFeed> _hubContext;
         public BetService(IOptions<BetOptions> options,
             BettyContext context,
             IHttpContextAccessor httpContext,
             IMailerService mail,
-            ILogger<BetService> logger)
+            ILogger<BetService> logger,
+            IHubContext<FixturesFeed> hubContext)
         {
             _options = options.Value;
             _context = context;
             _httpContext = httpContext.HttpContext;
             _mail = mail;
             _logger = logger;
+            _hubContext = hubContext;
         }
         public async Task<BetVM> GetVM()
         {
@@ -69,7 +74,17 @@ namespace Betty.Service
             //OK, proceed to remove
             _context.Register.Remove(reg);
             await _context.SaveChangesAsync();
+            await BroadcastPercentage(reg, -1);
             _mail.MailCancelBet(reg);
+        }
+        private async Task BroadcastPercentage(Register reg, int change)
+        {
+            await _hubContext.Clients.All.SendAsync("RegPercentage",
+                new GamePercentageDto(){
+                    Id = reg.GameId,
+                    Change = change,
+                    PlayerId = reg.BetPlayer
+            });
         }
         public async Task Create(BetDto bet)
         {
@@ -100,6 +115,7 @@ namespace Betty.Service
             };
             await _context.Register.AddAsync(newBet);
             await _context.SaveChangesAsync();
+            await BroadcastPercentage(newBet, 1);
             _mail.MailNewBet(game, newBet);
         }
         private IQueryable<GameOddsDto> BaseQuery(DateTime baseTime)
