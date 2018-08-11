@@ -6,6 +6,7 @@ namespace Betty.DTO
 {
     public class BetDto
     {
+        //phu test git
         [Required]
         public int Id { get; set; }
         [Required]
