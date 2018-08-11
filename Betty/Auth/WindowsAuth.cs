@@ -6,6 +6,8 @@ namespace Betty.Auth
     static public class WindowsAuth
     {
         //Pretty fast
+        //additional logic
+        //more logic for you
         public static bool Authenticate(string username, string password, string domain)
         {
             try
