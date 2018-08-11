@@ -8,6 +8,7 @@ namespace Betty.Auth
         //Pretty fast
         //additional logic
         //more logic for you
+        //LongPham Test 
         public static bool Authenticate(string username, string password, string domain)
         {
             try
